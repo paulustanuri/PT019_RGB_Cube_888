@@ -85,7 +85,7 @@ anode[0]=B10000000;
 pinMode(latch_pin, OUTPUT);//Latch
 pinMode(data_pin, OUTPUT);//MOSI DATA
 pinMode(clock_pin, OUTPUT);//SPI Clock
-//pinMode(blank_pin, OUTPUT);//Output Enable  important to do this last, so LEDs do not flash on boot up
+pinMode(blank_pin, OUTPUT);//Output Enable  important to do this last, so LEDs do not flash on boot up
 SPI.begin();//start up the SPI library
 interrupts();//let the show begin, this lets the multiplexing start
 
@@ -225,7 +225,8 @@ ISR(TIMER1_COMPA_vect){//***MultiPlex BAM***MultiPlex BAM***MultiPlex BAM***Mult
 //The frequency of the multiplexing is then 124us*8=992us, or 1/992us= about 1kHz
 
 
-  PORTD |= 1<<blank_pin;//The first thing we do is turn all of the LEDs OFF, by writing a 1 to the blank pin
+//  PORTD |= 1<<blank_pin;//The first thing we do is turn all of the LEDs OFF, by writing a 1 to the blank pin
+digitalWrite(blank_pin, HIGH);
   //Note, in my bread-boarded version, I was able to move this way down in the cube, meaning that the OFF time was minimized
   //do to signal integrity and parasitic capcitance, my rise/fall times, required all of the LEDs to first turn off, before updating
   //otherwise you get a ghosting effect on the previous level
@@ -290,9 +291,12 @@ case 1:
 
 SPI.transfer(anode[anodelevel]);//finally, send out the anode level byte
 
-PORTD |= 1<<latch_pin;//Latch pin HIGH
-PORTD &= ~(1<<latch_pin);//Latch pin LOW
-PORTD &= ~(1<<blank_pin);//Blank pin LOW to turn on the LEDs with the new data
+//PORTD |= 1<<latch_pin;//Latch pin HIGH
+digitalWrite(latch_pin, HIGH);
+//PORTD &= ~(1<<latch_pin);//Latch pin LOW
+digitalWrite(latch_pin,LOW);
+//PORTD &= ~(1<<blank_pin);//Blank pin LOW to turn on the LEDs with the new data
+digitalWrite(blank_pin,LOW);
 
 anodelevel++;//inrement the anode level
 level = level+8;//increment the level variable by 8, which is used to shift out data, since the next level woudl be the next 8 bytes in the arrays
